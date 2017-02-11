@@ -17,11 +17,7 @@ class WeatherController extends Controller
         $city = geoip()->getLocation($ip = '81.104.180.170')->getAttribute("city");
         $weather = $this->getWeather($city);
 
-        $today = date("l", strtotime("today"));
-
-        if ($day != $today) {
-            $day = floor((strtotime('next ' . $day) - time()) / 60 / 60 / 24) + 1;
-        }
+        $day = $this->getDay($day);
 
         return view('weather.show', [ 'weather' => $weather, 'day' => $day ]);
     }
@@ -45,11 +41,7 @@ class WeatherController extends Controller
                 return view('weather.404', ['error' => 'Unable to retrieve forecast for '.$city]);
         }
 
-        $today = date("l", strtotime("today"));
-
-        if ($day != $today) {
-            $day = floor((strtotime('next ' . $day) - time()) / 60 / 60 / 24) + 1;
-        }
+        $day = $this->getDay($day);
 
         return view('weather.show', [ 'weather' => $weather, 'day' => $day ]);
     }
@@ -70,5 +62,15 @@ class WeatherController extends Controller
         // Convert JSON to PHP object
         $phpObj =  json_decode($json);
         return $phpObj->query->results->channel;
+    }
+
+    private function getDay($day)
+    {
+        $today = date("l", strtotime("today"));
+
+        if ($day != $today) {
+            return floor((strtotime('next ' . $day) - time()) / 60 / 60 / 24) + 1;
+        }
+        return 0;
     }
 }
